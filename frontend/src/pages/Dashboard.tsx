@@ -314,18 +314,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   }}
                 />
               ) : (
-                <div className="flex flex-col items-center gap-3 text-center p-6">
-                  <CameraOff className="h-16 w-16 text-gray-600 animate-pulse" />
+                <div className="flex flex-col items-center gap-3 text-center p-6 max-w-md">
+                  <CameraOff className="h-12 w-12 text-gray-600 animate-pulse animate-bounce" />
                   <div>
-                    <h3 className="text-gray-300 font-semibold">Feed Unavailable</h3>
-                    <p className="text-xs text-gray-500 mt-1 max-w-[280px]">
+                    <h3 className="text-gray-300 font-semibold text-sm">Live Feed Offline</h3>
+                    <p className="text-xs text-gray-500 mt-1 leading-normal">
                       {!aiConnected 
-                        ? "AI Engine is loading or offline. Ensure Python service is running and host URL is correct."
+                        ? "AI Engine is offline or blocked by secure browser (HTTPS) mixed-content policies."
                         : !selectedCamera 
                           ? "Please configure and enable a camera stream in Camera Config."
                           : `Camera '${selectedCamera.name}' is currently disabled or connecting.`}
                     </p>
                   </div>
+
+                  {!aiConnected && (
+                    <div className="mt-2 text-left bg-white/5 border border-white/5 rounded-2xl p-4 space-y-2.5 text-[11px] text-gray-400 leading-normal">
+                      <span className="font-bold text-white block uppercase tracking-wider text-[10px]">Mobile / HTTPS Connection Guide:</span>
+                      <ol className="list-decimal pl-4 space-y-2">
+                        <li>
+                          <strong className="text-blue-400">Worldwide Access (Recommended):</strong> Run <code className="bg-dark-950 px-1.5 py-0.5 rounded text-white font-mono">ngrok http 8000</code> on your laptop, then copy/paste the secure <code className="text-green-400 font-mono">https://...ngrok-free.app</code> URL into the <strong className="text-white">AI Host</strong> box above.
+                        </li>
+                        <li>
+                          <strong className="text-blue-400">Local Wi-Fi Access:</strong> Type your laptop's local IP (e.g. <code className="bg-dark-950 px-1.5 py-0.5 rounded text-white font-mono">http://192.168.1.15:8000</code>) in the AI Host box.
+                          <span className="block mt-1 text-gray-500">Note: In Chrome, click the lock icon in your address bar → Site Settings → change <strong>Insecure Content</strong> to <strong>Allow</strong>.</span>
+                        </li>
+                      </ol>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
