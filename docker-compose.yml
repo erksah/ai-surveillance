@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: surveillance_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: surveillance_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/ai_surveillance
+      - JWT_SECRET=super_secret_surveillance_jwt_key_987654
+      - CLIENT_URL=http://localhost:80
+      - AI_ENGINE_URL=http://ai-engine:8000
+    depends_on:
+      - mongodb
+    volumes:
+      - uploads_data:/app/uploads
+
+  ai-engine:
+    build: ./ai-engine
+    container_name: surveillance_ai_engine
+    ports:
+      - "8000:8000"
+    environment:
+      - BACKEND_URL=http://backend:5000
+    depends_on:
+      - backend
+    # If a host camera needs to be passed, uncomment the lines below (Linux only):
+    # devices:
+    #   - "/dev/video0:/dev/video0"
+
+  frontend:
+    build: ./frontend
+    container_name: surveillance_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
+  uploads_data:

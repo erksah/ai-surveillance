@@ -1,0 +1,34 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python virtual environment
+ai-engine/.venv/
+ai-engine/__pycache__/
+ai-engine/*.pyc
+ai-engine/*.pyo
+ai-engine/yolov8n.pt
+
+# Build files
+dist/
+build/
+backend/dist/
+frontend/dist/
+
+# Environment configurations (secrets)
+.env
+backend/.env
+frontend/.env.local
+
+# Snapshots and temporary files
+uploads/
+ai-engine/temp_*.jpg
+*.jpg
+*.jpeg
+*.png
+
+# OS metadata
+.DS_Store
+Thumbs.db
