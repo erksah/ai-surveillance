@@ -37,12 +37,12 @@ def get_cameras_from_backend():
       'password': 'ai_secure_service_password_2026'
     }
     try:
-      requests.post(f"{backend_url}/api/auth/register", json=service_payload, timeout=3)
+      requests.post(f"{backend_url}/auth/register", json=service_payload, timeout=3)
     except:
       pass
 
     # 2. Login service account
-    login_resp = requests.post(f"{backend_url}/api/auth/login", json={
+    login_resp = requests.post(f"{backend_url}/auth/login", json={
       'email': 'ai_service@surveillance.local',
       'password': 'ai_secure_service_password_2026'
     }, timeout=3)
@@ -55,7 +55,7 @@ def get_cameras_from_backend():
     if token:
       headers['Authorization'] = f"Bearer {token}"
       
-    resp = requests.get(f"{backend_url}/api/cameras", headers=headers, timeout=5)
+    resp = requests.get(f"{backend_url}/cameras", headers=headers, timeout=5)
     if resp.status_code == 200:
       return resp.json()
     else:

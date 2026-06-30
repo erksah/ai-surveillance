@@ -49,10 +49,10 @@ app.use('/uploads', express.static(uploadsDir));
 connectDB();
 
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/cameras', cameraRoutes);
-app.use('/api/detections', detectionRoutes);
-app.use('/api/settings', settingsRoutes);
+app.use('/auth', authRoutes);
+app.use('/cameras', cameraRoutes);
+app.use('/detections', detectionRoutes);
+app.use('/settings', settingsRoutes);
 
 // Socket.IO Connection Event
 io.on('connection', (socket) => {

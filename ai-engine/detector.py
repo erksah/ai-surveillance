@@ -226,7 +226,7 @@ class AIDetector:
       temp_filename = f"temp_{camera_id}_{detection_type}.jpg"
       cv2.imwrite(temp_filename, frame)
       
-      url = f"{self.backend_url}/api/detections"
+      url = f"{self.backend_url}/detections"
       
       from datetime import datetime, timezone
       data = {
