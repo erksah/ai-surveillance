@@ -13,6 +13,8 @@ const detectionSchema = new Schema(
     imagePath: { type: String },
     clipPath: { type: String },
     status: { type: String, enum: ['read', 'unread'], default: 'unread' },
+    geminiAnalysis: { type: String },
+    isSuspicious: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

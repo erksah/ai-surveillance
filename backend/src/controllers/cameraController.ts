@@ -23,9 +23,9 @@ export const getCameras = async (req: Request, res: Response) => {
 };
 
 export const createCamera = async (req: Request, res: Response) => {
-  const { name, type, sourceUrl, resolution, fps, enabled } = req.body;
+  const { name, type, sourceUrl, resolution, fps, enabled, location } = req.body;
   try {
-    const camera = await Camera.create({ name, type, sourceUrl, resolution, fps, enabled });
+    const camera = await Camera.create({ name, type, sourceUrl, resolution, fps, enabled, location });
     
     // Emit real-time update
     const io = req.app.get('io');
@@ -44,11 +44,11 @@ export const createCamera = async (req: Request, res: Response) => {
 
 export const updateCamera = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, type, sourceUrl, resolution, fps, enabled } = req.body;
+  const { name, type, sourceUrl, resolution, fps, enabled, location } = req.body;
   try {
     const camera = await Camera.findByIdAndUpdate(
       id,
-      { name, type, sourceUrl, resolution, fps, enabled },
+      { name, type, sourceUrl, resolution, fps, enabled, location },
       { new: true }
     );
 

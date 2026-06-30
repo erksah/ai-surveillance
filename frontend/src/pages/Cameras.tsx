@@ -31,6 +31,7 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
   const [resolution, setResolution] = useState('1280x720');
   const [fps, setFps] = useState(15);
   const [enabled, setEnabled] = useState(true);
+  const [location, setLocation] = useState('Default Location');
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,7 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
     setResolution('1280x720');
     setFps(15);
     setEnabled(true);
+    setLocation('Default Location');
     setError('');
     setModalOpen(true);
   };
@@ -69,6 +71,7 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
     setResolution(cam.resolution);
     setFps(cam.fps);
     setEnabled(cam.enabled);
+    setLocation(cam.location || 'Default Location');
     setError('');
     setModalOpen(true);
   };
@@ -78,7 +81,7 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
     setError('');
     setLoading(true);
 
-    const payload = { name, type, sourceUrl, resolution, fps, enabled };
+    const payload = { name, type, sourceUrl, resolution, fps, enabled, location };
 
     try {
       if (editingCamera?._id) {
@@ -124,6 +127,7 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
     setResolution('1280x720');
     setFps(15);
     setEnabled(true);
+    setLocation('Home');
   };
 
   const quickSetupMobileCamera = () => {
@@ -133,6 +137,7 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
     setResolution('1280x720');
     setFps(15);
     setEnabled(true);
+    setLocation('Business Office');
   };
 
   return (
@@ -202,6 +207,10 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Resolution:</span>
                   <span className="text-gray-300">{cam.resolution}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Location:</span>
+                  <span className="text-gray-300 font-semibold">{cam.location || 'Default Location'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Target FPS:</span>
@@ -319,6 +328,17 @@ export const Cameras: React.FC<CamerasProps> = ({ cameras, setCameras }) => {
                     <option value="rtsp">RTSP CCTV Stream</option>
                     <option value="ip">IP Camera Stream</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Location / Group</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Home, Business, Warehouse"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full bg-dark-900 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-blue-500"
+                  />
                 </div>
 
                 <div>

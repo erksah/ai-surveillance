@@ -82,10 +82,16 @@ const MainApp: React.FC = () => {
       setDetections((prev) => [detection, ...prev.slice(0, 29)]); // keep max 30 recent
 
       // If browser supports notifications and allowed, show HTML5 notification
-      if (Notification.permission === 'granted') {
+      // Only send notification if Gemini AI flagged it as suspicious/unwanted
+      if (Notification.permission === 'granted' && detection.isSuspicious !== false) {
         const camName = (detection.cameraId as any)?.name || 'Camera';
-        new Notification(`SENTINEL ALERT: ${detection.detectionType.toUpperCase()}`, {
-          body: `${detection.detectionType.toUpperCase()} detected on camera: ${camName}`,
+        const locationTag = (detection.cameraId as any)?.location ? ` (${(detection.cameraId as any).location})` : '';
+        const bodyText = detection.geminiAnalysis 
+          ? `AI: ${detection.geminiAnalysis}` 
+          : `${detection.detectionType.toUpperCase()} detected on ${camName}${locationTag}`;
+          
+        new Notification(`🚨 SECURE ALERT: ${detection.detectionType.toUpperCase()}`, {
+          body: bodyText,
           icon: '/favicon.ico'
         });
       }

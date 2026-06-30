@@ -17,6 +17,7 @@ export interface Camera {
   resolution: string;
   fps: number;
   enabled: boolean;
+  location?: string;
   createdAt?: string;
 }
 
@@ -32,6 +33,8 @@ export interface Detection {
   imagePath?: string;
   clipPath?: string;
   status: 'read' | 'unread';
+  geminiAnalysis?: string;
+  isSuspicious?: boolean;
 }
 
 export interface SystemSettings {

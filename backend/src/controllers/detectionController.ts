@@ -1,6 +1,65 @@
 import { Request, Response } from 'express';
 import { Detection } from '../models/Detection';
 import { Camera } from '../models/Camera';
+import axios from 'axios';
+import fs from 'fs';
+
+const analyzeImageWithGemini = async (filePath: string, detectionType: string): Promise<{ description: string; isSuspicious: boolean }> => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return { description: 'No API key configured for Gemini', isSuspicious: true };
+  }
+  
+  try {
+    const fileBuffer = fs.readFileSync(filePath);
+    const base64Image = fileBuffer.toString('base64');
+    
+    const prompt = `Analyze this CCTV camera screenshot from a security camera. This was triggered by a detection of type: "${detectionType}".
+Describe briefly (1 short sentence) what is happening in the scene.
+Assess if this scene represents a suspicious, unwanted, or dangerous security threat (e.g. an intruder, a person falling/slipping, fire, smoke, vandals, break-ins).
+If it is normal/wanted activity (e.g. someone walking normally in daylight, a pet playing, cars passing by on the street, swaying trees, shadow changes, home owners entering), classify it as NOT suspicious (isSuspicious = false).
+Your response must be in JSON format matching this schema:
+{
+  "description": "Brief description of the scene",
+  "isSuspicious": true or false
+}`;
+
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        contents: [
+          {
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: 'image/jpeg',
+                  data: base64Image
+                }
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: 'application/json'
+        }
+      },
+      { timeout: 8000 }
+    );
+
+    const jsonText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (jsonText) {
+      const parsed = JSON.parse(jsonText.trim());
+      return {
+        description: parsed.description || 'Scene analyzed by AI',
+        isSuspicious: parsed.isSuspicious === true
+      };
+    }
+  } catch (err) {
+    console.error('Gemini API analysis failed:', (err as Error).message);
+  }
+  return { description: 'Gemini analysis failed or timed out', isSuspicious: true };
+};
 
 export const getDetections = async (req: Request, res: Response) => {
   const { cameraId, detectionType, status, startDate, endDate, page = 1, limit = 20 } = req.query;
@@ -19,7 +78,7 @@ export const getDetections = async (req: Request, res: Response) => {
   try {
     const skip = (Number(page) - 1) * Number(limit);
     const detections = await Detection.find(filter)
-      .populate('cameraId', 'name type')
+      .populate('cameraId', 'name type location')
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -52,8 +111,25 @@ export const createDetection = async (req: Request, res: Response) => {
 
     // Save image path if file uploaded
     let imagePath = '';
+    let geminiAnalysis = 'No image snapshot available';
+    let isSuspicious = true; // default fallback
+
     if (req.file) {
       imagePath = `/uploads/snapshots/${req.file.filename}`;
+      // Trigger Gemini AI validation if API key is set
+      if (process.env.GEMINI_API_KEY) {
+        console.log(`Analyzing snapshot ${req.file.filename} with Gemini AI...`);
+        const analysis = await analyzeImageWithGemini(req.file.path, detectionType);
+        geminiAnalysis = analysis.description;
+        isSuspicious = analysis.isSuspicious;
+        console.log(`Gemini Result: suspicious=${isSuspicious}, description: ${geminiAnalysis}`);
+      } else {
+        geminiAnalysis = 'Gemini API key not configured. Auto-approving alert.';
+        isSuspicious = true;
+      }
+    } else {
+      geminiAnalysis = 'No snapshot image uploaded for AI analysis';
+      isSuspicious = true;
     }
 
     const detection = await Detection.create({
@@ -63,9 +139,11 @@ export const createDetection = async (req: Request, res: Response) => {
       timestamp: timestamp ? new Date(timestamp) : new Date(),
       imagePath,
       status: 'unread',
+      geminiAnalysis,
+      isSuspicious,
     });
 
-    const populatedDetection = await Detection.findById(detection._id).populate('cameraId', 'name type');
+    const populatedDetection = await Detection.findById(detection._id).populate('cameraId', 'name type location');
 
     // Socket.IO real-time emission
     const io = req.app.get('io');

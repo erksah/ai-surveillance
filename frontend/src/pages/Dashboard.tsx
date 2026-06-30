@@ -129,10 +129,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (detections.length > 0 && processedRef.current !== detections[0]._id) {
       processedRef.current = detections[0]._id || null;
-      // Filter out low priority detections (like simple motion) if audio setting says so,
-      // but for demonstration we'll beep on all new detections
-      if (detections[0].detectionType !== 'motion' || (systemSettings?.audioAlerts)) {
-        playBeep();
+      
+      // Only play beep warning sound if Gemini AI flags it as suspicious
+      if (detections[0].isSuspicious !== false) {
+        if (detections[0].detectionType !== 'motion' || (systemSettings?.audioAlerts)) {
+          playBeep();
+        }
       }
     }
   }, [detections, systemSettings]);
@@ -354,10 +356,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     <p className="text-xs text-gray-300 font-medium truncate">
                       {(det.cameraId as any)?.name || 'Unknown Camera'}
+                      {(det.cameraId as any)?.location && (
+                        <span className="text-[10px] text-gray-500 font-normal ml-1.5">
+                          ({(det.cameraId as any).location})
+                        </span>
+                      )}
                     </p>
                     
-                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                    {det.geminiAnalysis && (
+                      <p className="text-[10px] text-gray-400 italic bg-white/5 p-1.5 rounded-lg border border-white/5 leading-normal">
+                        {det.geminiAnalysis}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center justify-between text-[9px] text-gray-500 mt-1">
                       <span>Confidence: {Math.round(det.confidence * 100)}%</span>
+                      {det.isSuspicious === false ? (
+                        <span className="text-[9px] font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-1.5 py-0.5 rounded">
+                          Normal
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded">
+                          Suspicious
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

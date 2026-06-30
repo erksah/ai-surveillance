@@ -8,6 +8,7 @@ const cameraSchema = new Schema(
     resolution: { type: String, default: '1280x720' },
     fps: { type: Number, default: 15 },
     enabled: { type: Boolean, default: true },
+    location: { type: String, default: 'Default Location' },
   },
   { timestamps: true }
 );
