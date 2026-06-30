@@ -18,10 +18,14 @@ import settingsRoutes from './routes/settingsRoutes';
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',')
+  : ['http://localhost:5173'];
+
 // Socket.IO Server Configuration
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -32,7 +36,7 @@ app.set('io', io);
 
 // Middlewares
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
