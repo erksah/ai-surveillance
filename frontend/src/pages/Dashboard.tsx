@@ -34,6 +34,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [aiEngineHost, setAiEngineHost] = useState(() => localStorage.getItem('aiEngineHost') || 'http://localhost:8000');
   const [aiStats, setAiStats] = useState({
     fps: 0.0,
     connectedCams: 0,
@@ -73,7 +74,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     const checkAIEngineStatus = async () => {
       try {
-        const res = await fetch('http://localhost:8000/status');
+        const host = aiEngineHost.replace(/\/$/, '');
+        const res = await fetch(`${host}/status`);
         if (res.ok) {
           const data = await res.json();
           setAiConnected(true);
@@ -101,7 +103,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     checkAIEngineStatus();
     const interval = setInterval(checkAIEngineStatus, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [aiEngineHost]);
 
   // Dynamic Web Audio API Beep Generator
   const playBeep = () => {
@@ -162,7 +164,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const getStreamUrl = () => {
     if (!selectedCamera) return "";
-    return `http://localhost:8000/stream/${selectedCamera._id}?t=${Date.now()}`;
+    const host = aiEngineHost.replace(/\/$/, '');
+    return `${host}/stream/${selectedCamera._id}?t=${Date.now()}`;
   };
 
   return (
@@ -253,7 +256,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Toolbar */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center flex-wrap gap-3">
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/5 rounded-xl px-2 py-1">
+                  <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">AI Host:</span>
+                  <input
+                    type="text"
+                    value={aiEngineHost}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setAiEngineHost(val);
+                      localStorage.setItem('aiEngineHost', val);
+                    }}
+                    placeholder="e.g. http://localhost:8000"
+                    className="bg-transparent text-[10px] font-mono text-gray-300 focus:outline-none w-36"
+                    title="Enter your Laptop IP (e.g. http://192.168.1.5:8000) or Ngrok Tunnel URL to see live video on mobile"
+                  />
+                </div>
+                <div className="h-4 w-[1px] bg-white/5 mx-1" />
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
                   className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl border border-white/5 transition-all"
@@ -301,7 +320,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <h3 className="text-gray-300 font-semibold">Feed Unavailable</h3>
                     <p className="text-xs text-gray-500 mt-1 max-w-[280px]">
                       {!aiConnected 
-                        ? "AI Engine server at port 8000 is loading or offline. Ensure Python service is running."
+                        ? "AI Engine is loading or offline. Ensure Python service is running and host URL is correct."
                         : !selectedCamera 
                           ? "Please configure and enable a camera stream in Camera Config."
                           : `Camera '${selectedCamera.name}' is currently disabled or connecting.`}
