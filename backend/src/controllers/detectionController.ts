@@ -44,7 +44,7 @@ Your response must be in JSON format matching this schema:
           responseMimeType: 'application/json'
         }
       },
-      { timeout: 8000 }
+      { timeout: 15000 }
     );
 
     const jsonText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;

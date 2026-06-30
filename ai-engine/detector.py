@@ -24,10 +24,10 @@ class AIDetector:
     # Key: camera_id, Value: gray_frame
     self.prev_frames = {}
     
-    # Cooldown to avoid flooding backend (10 seconds cooldown per type per camera)
+    # Cooldown to avoid flooding backend (30 seconds cooldown per type per camera)
     # Key: (camera_id, detection_type), Value: last_alert_time
     self.alert_cooldowns = {}
-    self.cooldown_duration = 10.0 # seconds
+    self.cooldown_duration = 30.0 # seconds
 
     # Detection configurations (can be updated dynamically)
     self.confidence_threshold = 0.4

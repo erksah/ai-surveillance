@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { io, type Socket } from 'socket.io-client';
-import api from './services/api';
+import api, { API_URL } from './services/api';
 
 // Pages & Components
 import Auth from './pages/Auth';
@@ -55,7 +55,7 @@ const MainApp: React.FC = () => {
       return;
     }
 
-    const socketUrl = 'http://localhost:5000';
+    const socketUrl = API_URL;
     console.log(`Connecting Socket.IO to ${socketUrl}...`);
     
     const socketIo = io(socketUrl, {
@@ -246,7 +246,7 @@ const MainApp: React.FC = () => {
                     <div className="w-12 h-12 bg-dark-950 border border-white/5 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
                       {det.imagePath ? (
                         <img 
-                          src={`http://localhost:5000${det.imagePath}`} 
+                          src={`${API_URL}${det.imagePath}`} 
                           alt="Thumbnail" 
                           className="w-full h-full object-cover" 
                         />

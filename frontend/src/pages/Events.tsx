@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 import { 
   Filter, 
   Clock, 
@@ -189,7 +189,7 @@ export const Events: React.FC<EventsProps> = ({ cameras, detections, setDetectio
               <div className="relative aspect-video bg-dark-950 overflow-hidden flex items-center justify-center border-b border-white/5">
                 {det.imagePath ? (
                   <img 
-                    src={`http://localhost:5000${det.imagePath}`} 
+                    src={`${API_URL}${det.imagePath}`} 
                     alt="Alert Snapshot"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -301,7 +301,7 @@ export const Events: React.FC<EventsProps> = ({ cameras, detections, setDetectio
             <div className="flex-1 bg-black flex items-center justify-center overflow-hidden relative">
               {selectedDet.imagePath ? (
                 <img 
-                  src={`http://localhost:5000${selectedDet.imagePath}`} 
+                  src={`${API_URL}${selectedDet.imagePath}`} 
                   alt="High Resolution Alert" 
                   className="w-full h-full object-contain"
                 />

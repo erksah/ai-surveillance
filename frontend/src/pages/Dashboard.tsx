@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 import type { Socket } from 'socket.io-client';
 import { 
   Video, 
@@ -334,7 +334,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div className="w-16 h-16 rounded-lg bg-dark-900 border border-white/5 flex-shrink-0 overflow-hidden relative flex items-center justify-center">
                     {det.imagePath ? (
                       <img 
-                        src={`http://localhost:5000${det.imagePath}`} 
+                        src={`${API_URL}${det.imagePath}`} 
                         alt="Detection Snapshot" 
                         className="w-full h-full object-cover" 
                       />
